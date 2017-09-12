@@ -20,14 +20,10 @@ from string import punctuation
 import nltk
 from nltk.tokenize import word_tokenize
 
-
-
 scriptdir = os.path.dirname(os.path.abspath(__file__))
-
 
 reader = codecs.getreader('utf8')
 writer = codecs.getwriter('utf8')
-
 
 def prepfile(fh, code):
   if type(fh) is str:
@@ -154,7 +150,7 @@ class LimerickDetector:
             words = []
             # split lines in to words
             for i in xrange(0,5):
-                words.append(self.apostrophe_tokenize(lines[i]))
+                words.append(word_tokenize(lines[i]))
             count =[]
             # store count of syllables and check if count < 4
             for sen in words:
@@ -206,30 +202,6 @@ class LimerickDetector:
         i=0
         count=0
         vowel =False
-        consonant=False
-        while i < len(word):
-            if i==0:
-                consonant = True
-            while i < len(word) and word[i] not in vowels:
-                i+=1
-                consonant = True
-            while i < len(word) and word[i] in vowels:
-                i+=1
-                vowel = True
-            if i < len(word) and word[i] not in vowels:
-                if vowel == True:
-                    count +=1
-                i+=1
-                consonant = False
-                vowel = False
-        if vowel == True and consonant == True:
-            count+=1
-        return count
-    def guess1_syllables(self, word):
-        vowels = ["a","e","i","o","u","y"]
-        i=0
-        count=0
-        vowel =False
         consonant=True
         while i < len(word):
             if word[i] not in vowels:
@@ -243,109 +215,29 @@ class LimerickDetector:
             i+=1
         return count
 
-    def guess2_syllables(self, word):
-        word = word.lower()
-        #cmu = self._pronunciations
-        count = 0
-        # if word in cmu.keys():
-        # return self.num_syllables(word)
 
-
-        vowels = ["a","e","i","o","u","y"]
-        index = 0
-
-        while index < len(word):
-
-            while (index < len(word)) and (word[index] not in vowels):
-              index += 1
-
-            while (index < len(word)) and (word[index] in vowels):
-              index += 1
-
-            # now index will have a consonant
-            count += 1
-
-        return count
 # The code below should not need to be modified
 def main():
-  # parser = argparse.ArgumentParser(description="limerick detector. Given a file containing a poem, indicate whether that poem is a limerick or not",
-  #                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  # addonoffarg(parser, 'debug', help="debug mode", default=False)
-  # parser.add_argument("--infile", "-i", nargs='?', type=argparse.FileType('r'), default=sys.stdin, help="input file")
-  # parser.add_argument("--outfile", "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="output file")
-  #
-  #
-  #
-  #
-  # try:
-  #   args = parser.parse_args()
-  # except IOError as msg:
-  #   parser.error(str(msg))
-  #
-  # infile = prepfile(args.infile, 'r')
-  # outfile = prepfile(args.outfile, 'w')
-  #
-  # ld = LimerickDetector()
-  # lines = ''.join(infile.readlines())
-  # outfile.write("{}\n-----------\n{}\n".format(lines.strip(), ld.is_limerick(lines)))
+  parser = argparse.ArgumentParser(description="limerick detector. Given a file containing a poem, indicate whether that poem is a limerick or not",
+                                   formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  addonoffarg(parser, 'debug', help="debug mode", default=False)
+  parser.add_argument("--infile", "-i", nargs='?', type=argparse.FileType('r'), default=sys.stdin, help="input file")
+  parser.add_argument("--outfile", "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="output file")
+
+
+
+
+  try:
+    args = parser.parse_args()
+  except IOError as msg:
+    parser.error(str(msg))
+
+  infile = prepfile(args.infile, 'r')
+  outfile = prepfile(args.outfile, 'w')
+
   ld = LimerickDetector()
-  cmu = nltk.corpus.cmudict.dict()
-  m,nm,m1,nm1,m2,nm2=0,0,0,0,0,0
-  #print ld.rhymes("peru","shoe")
-  for i in cmu.keys():
-      if ld.num_syllables(i) != ld.guess_syllables(i):
-          nm +=1
-      else:
-          m+=1
-  for i in cmu.keys():
-      if ld.num_syllables(i) != ld.guess1_syllables(i):
-          nm1 +=1
-      else:
-          m1+=1
-  for i in cmu.keys():
-      if ld.num_syllables(i) != ld.guess2_syllables(i):
-          nm2 +=1
-      else:
-          m2+=1
-  print m, m1, m2, nm, nm1, nm2
-          #print i, ld.num_syllables(i), ld.guess_syllables(i)
-          #print i, ld.num_syllables(i), ld.guess_syllables(i)
-  #     for j in cmu.keys():
-  #         if not ld.rhymes(i,j):
-  #             print i,j
-
-  # print ld.rhymes("dog", "bog")
-  # print ld.rhymes("eleven", "seven")
-  # except: s.append(2)
-  # try: self.assertEqual(self.ld.rhymes("nine", "wine"), True)
-  # except: s.append(3)
-  # try: self.assertEqual(self.ld.rhymes("dine", "fine"), True)
-  # except: s.append(4)
-  # try: self.assertEqual(self.ld.rhymes("wine", "mine"), True)
-  # except: s.append(5)
-  # try: self.assertEqual(self.ld.rhymes("dock", "sock"), True)
-  # except: s.append(6)
-  # try: self.assertEqual(self.ld.rhymes("weigh", "fey"), True)
-  # except: s.append(7)
-  # try: self.assertEqual(self.ld.rhymes("tree", "debris"), True)
-  # except: s.append(8)
-  # try: self.assertEqual(self.ld.rhymes("niece", "peace"), True)
-  # except: s.append(9)
-  # try: self.assertEqual(self.ld.rhymes("read", "need"), True)
-  # except: s.append(10)
-  # try: self.assertEqual(self.ld.rhymes("dog", "cat"), False)
-  # except: s.append(11)
-  # print ld.rhymes("bagel", "sail")
-  # print ld.rhymes("wine", "rind")
-  # except: s.append(13)
-  # try: self.assertEqual(self.ld.rhymes("failure", "savior"), False)
-  # except: s.append(14)
-  # try: self.assertEqual(self.ld.rhymes("cup", "duck"), False)
-  # except: s.append(15)
-
-  # inputs = ["."]
-  # for i in inputs:
-  #      print ld.num_syllables(i)
+  lines = ''.join(infile.readlines())
+  outfile.write("{}\n-----------\n{}\n".format(lines.strip(), ld.is_limerick(lines)))
 
 if __name__ == '__main__':
   main()

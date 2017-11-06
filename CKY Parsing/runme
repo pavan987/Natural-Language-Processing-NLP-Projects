@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -e
+# don't change these 4 lines
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TRAINING=$1;
+INPUT=$2;
+OUTPUT=$3;
+# you should change the lines below
+# prepare the training data
+python $SCRIPTDIR/preprocess.py $TRAINING | python $SCRIPTDIR/unknown.py > tmpfile
+# create a grammar
+python $SCRIPTDIR/generategrammar.py tmpfile > grammar
+# run your parser on the passed-in input
+python $SCRIPTDIR/pcfg.py -g grammar -i $INPUT > tmpfile2
+# do final transformation of the parsed data so it is compatible with the true trees.
+# this will write to the specified output
+python $SCRIPTDIR/postprocess.py tmpfile2 > $OUTPUT
